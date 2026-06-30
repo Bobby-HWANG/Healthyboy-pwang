@@ -230,8 +230,13 @@
   .link.del{color:var(--bad)}
 
   /* ===== 건강검진 ===== */
-  .hc-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
-  .hc-item{border:1px solid var(--card-brd); border-radius:15px; padding:12px 13px; position:relative; overflow:hidden;
+  .hc-grid{display:grid; grid-template-rows:repeat(3,auto); grid-auto-flow:column; grid-auto-columns:minmax(150px,1fr);
+    gap:10px; overflow-x:auto; -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity; padding:2px 2px 12px; margin:0 -2px; cursor:grab}
+  .hc-grid.dragging{cursor:grabbing; scroll-snap-type:none; user-select:none}
+  .hc-grid::-webkit-scrollbar{height:7px}
+  .hc-grid::-webkit-scrollbar-track{background:transparent}
+  .hc-grid::-webkit-scrollbar-thumb{background:var(--line); border-radius:99px}
+  .hc-item{border:1px solid var(--card-brd); border-radius:15px; padding:12px 13px; position:relative; overflow:hidden; min-width:150px; scroll-snap-align:start;
     background:linear-gradient(160deg,rgba(255,255,255,.45),rgba(255,255,255,.12))}
   @media (prefers-color-scheme: dark){ .hc-item{background:rgba(255,255,255,.03)} }
   .hc-item .hc-top{display:flex; align-items:center; gap:6px; margin-bottom:6px}
@@ -262,11 +267,18 @@
   .hc-row:last-child{border-bottom:none}
   .hc-row .nm{font-size:13px; font-weight:800; min-width:96px}
   .hc-row .nm .u{font-size:10px; font-weight:700; color:var(--muted); display:block}
-  .hc-row .vals{flex:1; display:flex; gap:6px; align-items:baseline; overflow-x:auto; scrollbar-width:none}
-  .hc-row .vals::-webkit-scrollbar{display:none}
+  .hc-row .vals{flex:1; display:flex; gap:10px; align-items:flex-end; overflow-x:auto; cursor:grab; padding-bottom:4px; scrollbar-width:thin}
+  .hc-row .vals.dragging{cursor:grabbing; user-select:none}
+  .hc-row .vals::-webkit-scrollbar{height:5px}
+  .hc-row .vals::-webkit-scrollbar-thumb{background:var(--line); border-radius:99px}
+  .hc-row .vals .vy{display:flex; flex-direction:column; align-items:center; flex:0 0 auto; gap:1px}
+  .hc-row .vals .vy .y{font-size:9px; font-weight:700; color:var(--muted)}
   .hc-row .vals .v{font-size:13px; font-weight:700; white-space:nowrap}
-  .hc-row .vals .arr{color:var(--muted); font-size:11px}
   .hc-row .trend{font-size:12px; font-weight:800; flex:0 0 auto; white-space:nowrap}
+  .card-min{margin-left:auto; width:26px; height:26px; flex:0 0 auto; border:1px solid var(--card-brd); background:var(--card-solid);
+    color:var(--muted); border-radius:8px; font-size:16px; font-weight:800; cursor:pointer; line-height:1; display:grid; place-items:center; padding:0}
+  .card-min:active{transform:scale(.94)}
+  .card h2 .tag + .card-min{margin-left:8px}
   .cu-grid{display:grid; grid-template-columns:1fr 1fr; gap:11px}
   .cu-grid .field.full{grid-column:1 / -1}
   .cu-sec{font-size:11px; font-weight:800; color:var(--accent); margin:6px 0 2px; letter-spacing:.3px}
@@ -484,7 +496,7 @@ const ACCENT_HEX="#0d9488";
 
 let state={ profile:null, checkups:[], delCheckups:{}, updatedAt:null };
 let cfg={ bin:"", key:"" };
-let ui={ tab:"home", range:30, homeMode:"goal", homeGran:"day", metric:"weight", showMetricInput:false, hcMetric:"bmi" };
+let ui={ tab:"home", range:30, homeMode:"goal", homeGran:"day", metric:"weight", showMetricInput:false, hcMetric:"bmi", cardCollapsed:{} };
 
 /* 추적 지표 정의 (체중 + 체성분) */
 const METRICS=[
@@ -1426,7 +1438,7 @@ function renderCheckup(v){
   let html='';
 
   /* 헤더 + 추가 버튼 */
-  html+='<div class="card"><h2>건강검진 종합 <span class="tag">'+cks.length+'회</span></h2>';
+  html+='<div class="card" data-sec="hcSummary"><h2>건강검진 종합 <span class="tag">'+cks.length+'회</span></h2>';
   if(cks.length===0){
     html+='<div class="empty">아직 건강검진 데이터가 없습니다.<br>아래 버튼으로 결과지 수치를 입력하면<br>지표별 변화 추이가 도식화됩니다.</div>';
     html+='<div style="margin-top:6px"><button class="btn" id="btnAddCheckup" style="width:100%">+ 건강검진 기록 추가</button></div></div>';
@@ -1450,7 +1462,7 @@ function renderCheckup(v){
   html+='</div>';
 
   /* 신호등 지표 그리드 (최근 검진 + 직전 대비) */
-  html+='<div class="card"><h2>최근 지표 <span class="tag">'+fmtYear(lc.date)+' 기준 · 직전 대비</span></h2>';
+  html+='<div class="card" data-sec="hcRecent"><h2>최근 지표 <span class="tag">'+fmtYear(lc.date)+' 기준 · 직전 대비</span></h2>';
   html+='<div class="hc-grid">';
   HC_METRICS.forEach(m=>{
     const val=lc[m.key]; if(val==null||isNaN(val)) return;
@@ -1478,7 +1490,7 @@ function renderCheckup(v){
   html+='</div></div>';
 
   /* 지표별 추이 차트 */
-  html+='<div class="card"><h2>지표별 변화 추이</h2>';
+  html+='<div class="card" data-sec="hcTrend"><h2>지표별 변화 추이</h2>';
   const avail=HC_METRICS.filter(m=>hcHasAny(m.key));
   if(!avail.find(m=>m.key===ui.hcMetric)) ui.hcMetric = avail.length? avail[0].key : "systolic";
   html+='<div class="seg" id="hcSeg">'+avail.map(m=>'<button data-hc="'+m.key+'" class="'+(ui.hcMetric===m.key?"active":"")+'">'+m.label+'</button>').join("")+'</div>';
@@ -1491,7 +1503,7 @@ function renderCheckup(v){
 
   /* 회차별 비교 (전체 지표 한눈에) */
   if(cks.length>=2){
-    html+='<div class="card"><h2>회차별 비교 <span class="tag">처음 → 최근</span></h2><div class="hc-metric-list">';
+    html+='<div class="card" data-sec="hcCompare"><h2>회차별 비교 <span class="tag">처음 → 최근</span></h2><div class="hc-metric-list">';
     HC_METRICS.forEach(m=>{
       const series=checkupsWith(m.key); if(series.length===0) return;
       const first=series[0][m.key], lastV=series[series.length-1][m.key];
@@ -1503,7 +1515,8 @@ function renderCheckup(v){
       series.forEach((c,i)=>{
         const lv=hcEval(m.key,c[m.key],sex)||"norm";
         const vtxt=hcFmt(m.key, c[m.key]);
-        valsHtml+=(i>0?'<span class="arr">→</span>':'')+'<span class="v" style="color:'+LEVEL_COLOR[lv]+'">'+vtxt+'</span>';
+        const yr="'"+String(yearOf(c.date)).slice(2);
+        valsHtml+='<span class="vy"><span class="y">'+yr+'</span><span class="v" style="color:'+LEVEL_COLOR[lv]+'">'+vtxt+'</span></span>';
       });
       html+='<div class="hc-row"><div class="nm">'+m.label+'<span class="u">'+m.unit+'</span></div>'+
         '<div class="vals">'+valsHtml+'</div>'+
@@ -1513,7 +1526,7 @@ function renderCheckup(v){
   }
 
   /* 검진 기록 카드 (수정/삭제) */
-  html+='<div class="card"><h2>검진 기록</h2>';
+  html+='<div class="card" data-sec="hcRecords"><h2>검진 기록</h2>';
   [...cks].reverse().forEach(c=>{
     let body='';
     const order=["height","weight","bmi","waist","systolic","diastolic","hb","glucose","totalChol","hdl","tg","ldl","creatinine","egfr","ast","alt","ggt"];
@@ -1534,6 +1547,7 @@ function renderCheckup(v){
 
   v.innerHTML=html;
   drawHcChart($("#hcWrap"), ui.hcMetric, sex);
+  decorateCards(v);
 
   $("#btnAddCheckup").onclick=()=>openCheckup(null);
   v.querySelectorAll("#hcSeg button[data-hc]").forEach(b=>b.onclick=()=>{ ui.hcMetric=b.dataset.hc; renderView(); });
@@ -1596,6 +1610,46 @@ function drawHcChart(wrap, key, sex){
     svg+='<text x="'+x+'" y="'+(y-9)+'" font-size="10" fill="'+col+'" text-anchor="middle" font-weight="800">'+vtxt+'</text>'; });
   svg+='</svg>';
   wrap.innerHTML=svg;
+}
+
+/* 가로 스크롤 영역을 마우스로 드래그 (터치는 네이티브 스크롤 유지) */
+function enableDragScroll(el){
+  if(el._dragBound) return; el._dragBound=true;
+  let down=false, sx=0, sl=0;
+  el.addEventListener("pointerdown", e=>{
+    if(e.pointerType==="touch") return;
+    if(e.target.closest("button")) return;
+    down=true; sx=e.clientX; sl=el.scrollLeft; el.classList.add("dragging");
+    try{ el.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  el.addEventListener("pointermove", e=>{ if(down) el.scrollLeft = sl-(e.clientX-sx); });
+  const end=()=>{ down=false; el.classList.remove("dragging"); };
+  el.addEventListener("pointerup", end);
+  el.addEventListener("pointercancel", end);
+  el.addEventListener("pointerleave", end);
+}
+/* 카드 섹션 접기/펴기 (제목만 남기고 본문 토글) */
+function toggleCardSection(card, key){
+  const collapsed = !ui.cardCollapsed[key];
+  ui.cardCollapsed[key]=collapsed;
+  const h2=card.querySelector("h2");
+  [...card.children].forEach(ch=>{ if(ch!==h2) ch.style.display = collapsed?"none":""; });
+  const btn=card.querySelector(".card-min"); if(btn) btn.textContent = collapsed?"+":"−";
+}
+/* 카드들에 최소화 버튼 주입 + 접힘 상태 복원 + 드래그 스크롤 적용 */
+function decorateCards(scope){
+  scope.querySelectorAll(".card[data-sec]").forEach(card=>{
+    const h2=card.querySelector("h2"); if(!h2 || h2.querySelector(".card-min")) return;
+    const key=card.dataset.sec;
+    const btn=document.createElement("button");
+    btn.className="card-min"; btn.type="button"; btn.setAttribute("aria-label","최소화");
+    const collapsed=!!ui.cardCollapsed[key];
+    btn.textContent=collapsed?"+":"−";
+    btn.onclick=()=>toggleCardSection(card,key);
+    h2.appendChild(btn);
+    if(collapsed) [...card.children].forEach(ch=>{ if(ch!==h2) ch.style.display="none"; });
+  });
+  scope.querySelectorAll(".hc-grid, .hc-row .vals").forEach(enableDragScroll);
 }
 
 /* ============ 축하 효과 ============ */
