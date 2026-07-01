@@ -263,8 +263,23 @@
   .hc-chiprow{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px}
   .hc-chiprow .c{font-size:10.5px; font-weight:800; padding:3px 9px; border-radius:99px}
   .hc-metric-list{display:flex; flex-direction:column; gap:0}
-  .hc-row{display:flex; align-items:center; gap:10px; padding:10px 2px; border-bottom:1px solid var(--line)}
-  .hc-row:last-child{border-bottom:none}
+  .hc-row{display:flex; align-items:center; gap:10px; padding:10px 2px 4px}
+  .hc-spec{font-size:10.5px; font-weight:700; color:var(--muted); padding:0 2px 10px; border-bottom:1px solid var(--line)}
+  .hc-metric-list .hc-spec:last-child{border-bottom:none}
+  .hc-bw{margin-top:8px; display:flex; flex-direction:column; gap:3px; border-top:1px solid var(--line); padding-top:7px}
+  .hc-bw .bw-row{display:flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700}
+  .hc-bw .bw-k{font-size:8.5px; font-weight:800; padding:1px 5px; border-radius:99px; flex:0 0 auto}
+  .hc-bw .bw-k.good{background:rgba(16,185,129,.14); color:var(--sig-norm)}
+  .hc-bw .bw-k.bad{background:rgba(239,68,68,.13); color:var(--sig-risk)}
+  .hc-bw .bw-y{color:var(--muted)}
+  .hc-bw .bw-v{margin-left:auto; font-weight:800; color:var(--ink2)}
+  .seg.draggable{cursor:grab}
+  #hcSeg{flex-wrap:wrap; overflow-x:visible; cursor:default; row-gap:6px}
+  #hcSeg button{flex:0 0 auto}
+  .seg.draggable.dragging{cursor:grabbing}
+  .seg.draggable.dragging button{pointer-events:none}
+  .seg button .sub{font-size:.8em; font-weight:600; opacity:.72; margin-left:2px}
+  .hc-name .sub, .hc-row .nm .sub{font-size:.8em; font-weight:600; color:var(--muted); margin-left:1px}
   .hc-row .nm{font-size:13px; font-weight:800; min-width:96px}
   .hc-row .nm .u{font-size:10px; font-weight:700; color:var(--muted); display:block}
   .hc-row .vals{flex:1; display:flex; gap:10px; align-items:flex-end; overflow-x:auto; cursor:grab; padding-bottom:4px; scrollbar-width:thin}
@@ -517,14 +532,14 @@ const HC_METRICS=[
   {key:"hb",        label:"혈색소",       unit:"g/dL", group:"빈혈",  lowerBetter:false, color:"#f59e0b"},
   {key:"glucose",   label:"공복혈당",    unit:"mg/dL",group:"당뇨",  lowerBetter:true,  color:"#8b5cf6"},
   {key:"totalChol", label:"총콜레스테롤", unit:"mg/dL",group:"지질",  lowerBetter:true,  color:"#0ea5e9"},
-  {key:"hdl",       label:"HDL",         unit:"mg/dL",group:"지질",  lowerBetter:false, color:"#10b981"},
+  {key:"hdl",       label:"HDL",         unit:"mg/dL",group:"지질",  lowerBetter:false, sub:"고밀도", color:"#10b981"},
   {key:"tg",        label:"중성지방",     unit:"mg/dL",group:"지질",  lowerBetter:true,  color:"#ec4899"},
-  {key:"ldl",       label:"LDL",         unit:"mg/dL",group:"지질",  lowerBetter:true,  color:"#6366f1"},
+  {key:"ldl",       label:"LDL",         unit:"mg/dL",group:"지질",  lowerBetter:true,  sub:"저밀도", color:"#6366f1"},
   {key:"creatinine",label:"크레아티닌",   unit:"mg/dL",group:"신장",  lowerBetter:true,  color:"#06b6d4"},
-  {key:"egfr",      label:"eGFR",        unit:"mL/min",group:"신장", lowerBetter:false, color:"#22c55e"},
-  {key:"ast",       label:"AST",         unit:"IU/L", group:"간기능", lowerBetter:true,  color:"#14b8a6"},
-  {key:"alt",       label:"ALT",         unit:"IU/L", group:"간기능", lowerBetter:true,  color:"#0d9488"},
-  {key:"ggt",       label:"γ-GTP",       unit:"IU/L", group:"간기능", lowerBetter:true,  color:"#a855f7"},
+  {key:"egfr",      label:"eGFR",        unit:"mL/min",group:"신장", lowerBetter:false, sub:"사구체여과율", color:"#22c55e"},
+  {key:"ast",       label:"AST",         unit:"IU/L", group:"간기능", lowerBetter:true,  sub:"간", color:"#14b8a6"},
+  {key:"alt",       label:"ALT",         unit:"IU/L", group:"간기능", lowerBetter:true,  sub:"간", color:"#0d9488"},
+  {key:"ggt",       label:"γ-GTP",       unit:"IU/L", group:"간기능", lowerBetter:true,  sub:"감마", color:"#a855f7"},
 ];
 function hcDef(k){ return HC_METRICS.find(m=>m.key===k); }
 
@@ -583,6 +598,19 @@ function hcFmt(key,val){
   const dec={hb:1, bmi:1, creatinine:2, egfr:1, waist:1, height:1, weight:1};
   const d=dec[key];
   return d!=null ? Number(val).toFixed(d) : String(Math.round(val));
+}
+/* 지표명 + 한글 부제 */
+function hcLabelFull(m){ return m.sub ? m.label+' <span class="sub">'+m.sub+'</span>' : m.label; }
+/* 전체 검진 이력에서 가장 좋았던/나빴던 회차 (방향 반영) */
+function bestWorst(key, lowerBetter){
+  const series=checkupsWith(key);
+  if(series.length===0) return null;
+  let best=series[0], worst=series[0];
+  series.forEach(c=>{
+    if(lowerBetter){ if(c[key]<best[key])best=c; if(c[key]>worst[key])worst=c; }
+    else          { if(c[key]>best[key])best=c; if(c[key]<worst[key])worst=c; }
+  });
+  return { best:{y:yearOf(best.date), v:best[key]}, worst:{y:yearOf(worst.date), v:worst[key]} };
 }
 const LEVEL_CLS={norm:"hc-norm", watch:"hc-watch", risk:"hc-risk"};
 const LED_CLS  ={norm:"led-norm", watch:"led-watch", risk:"led-risk"};
@@ -1467,24 +1495,21 @@ function renderCheckup(v){
   HC_METRICS.forEach(m=>{
     const val=lc[m.key]; if(val==null||isNaN(val)) return;
     const lv=hcEval(m.key, val, sex)||"norm";
-    const prev = pc? pc[m.key] : null;
-    let deltaHtml='';
-    if(prev!=null && !isNaN(prev)){
-      const dv=val-prev;
-      if(Math.abs(dv)>1e-9){
-        // 개선/악화 판정
-        const improved = m.lowerBetter ? dv<0 : dv>0;
-        const col = improved? "var(--sig-norm)" : "var(--sig-risk)";
-        const arr = dv<0? "▼" : "▲";
-        deltaHtml='<div class="hc-delta" style="color:'+col+'">'+arr+' '+(Math.abs(dv)>=10?fmtInt(Math.abs(dv)):round1(Math.abs(dv)))+' <span class="muted" style="font-weight:600">vs 직전</span></div>';
-      } else deltaHtml='<div class="hc-delta muted">변화 없음</div>';
-    } else deltaHtml='<div class="hc-delta muted">기준 '+hcRefLabel(m.key,sex)+'</div>';
     const valTxt = hcFmt(m.key, val);
+    const bw=bestWorst(m.key, m.lowerBetter);
+    let bwHtml='';
+    if(bw){
+      const by="'"+String(bw.best.y).slice(2), wy="'"+String(bw.worst.y).slice(2);
+      bwHtml='<div class="hc-bw">'+
+        '<div class="bw-row"><span class="bw-k good">최고</span><span class="bw-y">'+by+'</span><span class="bw-v tnum">'+hcFmt(m.key,bw.best.v)+'</span></div>'+
+        '<div class="bw-row"><span class="bw-k bad">최저</span><span class="bw-y">'+wy+'</span><span class="bw-v tnum">'+hcFmt(m.key,bw.worst.v)+'</span></div>'+
+        '</div>';
+    }
     html+='<div class="hc-item">'+
-      '<div class="hc-top"><span class="hc-name">'+m.label+'</span><span class="hc-led '+LED_CLS[lv]+'"></span></div>'+
+      '<div class="hc-top"><span class="hc-name">'+hcLabelFull(m)+'</span><span class="hc-led '+LED_CLS[lv]+'"></span></div>'+
       '<div class="hc-val tnum">'+valTxt+'<small>'+m.unit+'</small></div>'+
-      deltaHtml+
-      '<span class="hc-status '+LEVEL_CLS[lv]+'">'+LEVEL_TXT[lv]+'</span>'+
+      '<span class="hc-status '+LEVEL_CLS[lv]+'">'+LEVEL_TXT[lv]+' · 현재</span>'+
+      bwHtml+
       '</div>';
   });
   html+='</div></div>';
@@ -1493,7 +1518,7 @@ function renderCheckup(v){
   html+='<div class="card" data-sec="hcTrend"><h2>지표별 변화 추이</h2>';
   const avail=HC_METRICS.filter(m=>hcHasAny(m.key));
   if(!avail.find(m=>m.key===ui.hcMetric)) ui.hcMetric = avail.length? avail[0].key : "systolic";
-  html+='<div class="seg" id="hcSeg">'+avail.map(m=>'<button data-hc="'+m.key+'" class="'+(ui.hcMetric===m.key?"active":"")+'">'+m.label+'</button>').join("")+'</div>';
+  html+='<div class="seg draggable" id="hcSeg">'+avail.map(m=>'<button data-hc="'+m.key+'" class="'+(ui.hcMetric===m.key?"active":"")+'">'+hcLabelFull(m)+'</button>').join("")+'</div>';
   html+='<div class="chart-wrap" id="hcWrap"></div>';
   html+='<div class="legend"><span><span class="dot" style="background:var(--sig-norm)"></span>정상</span>'+
         '<span><span class="dot" style="background:var(--sig-watch)"></span>주의</span>'+
@@ -1518,9 +1543,10 @@ function renderCheckup(v){
         const yr="'"+String(yearOf(c.date)).slice(2);
         valsHtml+='<span class="vy"><span class="y">'+yr+'</span><span class="v" style="color:'+LEVEL_COLOR[lv]+'">'+vtxt+'</span></span>';
       });
-      html+='<div class="hc-row"><div class="nm">'+m.label+'<span class="u">'+m.unit+'</span></div>'+
+      html+='<div class="hc-row"><div class="nm">'+hcLabelFull(m)+'<span class="u">'+m.unit+'</span></div>'+
         '<div class="vals">'+valsHtml+'</div>'+
-        '<div class="trend">'+trendTxt+'</div></div>';
+        '<div class="trend">'+trendTxt+'</div></div>'+
+        '<div class="hc-spec">정상 기준 '+hcRefLabel(m.key,sex)+(m.unit?' '+m.unit:'')+'</div>';
     });
     html+='</div></div>';
   }
@@ -1628,7 +1654,26 @@ function enableDragScroll(el){
   el.addEventListener("pointercancel", end);
   el.addEventListener("pointerleave", end);
 }
-/* 카드 섹션 접기/펴기 (제목만 남기고 본문 토글) */
+/* 세그먼트(버튼 바) 가로 드래그 스크롤 — 짧게 누르면 선택, 끌면 스크롤 */
+function enableSegDrag(el){
+  if(el._segDrag) return; el._segDrag=true;
+  let down=false, moved=false, sx=0, sl=0;
+  el.addEventListener("pointerdown", e=>{
+    if(e.pointerType==="touch") return;   // 터치는 네이티브 스크롤
+    down=true; moved=false; sx=e.clientX; sl=el.scrollLeft;
+  });
+  el.addEventListener("pointermove", e=>{
+    if(!down) return;
+    const dx=e.clientX-sx;
+    if(Math.abs(dx)>4){ moved=true; el.classList.add("dragging"); el.scrollLeft=sl-dx; }
+  });
+  const end=()=>{ down=false; setTimeout(()=>el.classList.remove("dragging"),0); };
+  el.addEventListener("pointerup", end);
+  el.addEventListener("pointercancel", end);
+  el.addEventListener("pointerleave", end);
+  // 끌었으면 그 클릭은 취소(선택 방지)
+  el.addEventListener("click", e=>{ if(moved){ e.stopPropagation(); e.preventDefault(); moved=false; } }, true);
+}
 function toggleCardSection(card, key){
   const collapsed = !ui.cardCollapsed[key];
   ui.cardCollapsed[key]=collapsed;
@@ -1650,6 +1695,7 @@ function decorateCards(scope){
     if(collapsed) [...card.children].forEach(ch=>{ if(ch!==h2) ch.style.display="none"; });
   });
   scope.querySelectorAll(".hc-grid, .hc-row .vals").forEach(enableDragScroll);
+  scope.querySelectorAll(".seg.draggable").forEach(enableSegDrag);
 }
 
 /* ============ 축하 효과 ============ */
