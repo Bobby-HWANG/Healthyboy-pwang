@@ -417,6 +417,25 @@
   .speed-good{background:rgba(16,185,129,.15); color:var(--sig-norm)}
   .speed-fast{background:rgba(245,158,11,.15); color:var(--sig-watch)}
   .speed-slow{background:rgba(100,116,139,.18); color:var(--muted)}
+  .hc-ref{font-size:10px; font-weight:700; color:var(--muted); margin-top:5px}
+  .cmp-toggle{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px}
+  .cmp-chip{font-size:11.5px; font-weight:700; padding:5px 11px; border-radius:99px; border:1px solid var(--card-brd); background:var(--card-solid); color:var(--muted); cursor:pointer; transition:all .12s}
+  .cmp-chip:active{transform:scale(.95)}
+  .cmp-chip.on{background:rgba(13,148,136,.12); color:var(--accent); border-color:rgba(13,148,136,.32)}
+  @media (prefers-color-scheme: dark){ .cmp-chip.on{background:rgba(45,212,191,.12)} }
+  .cmp-scroll{overflow-x:auto; margin:0 -2px; cursor:grab; -webkit-overflow-scrolling:touch; scrollbar-width:thin}
+  .cmp-scroll.dragging{cursor:grabbing; user-select:none}
+  .cmp-scroll::-webkit-scrollbar{height:6px}
+  .cmp-scroll::-webkit-scrollbar-thumb{background:var(--line); border-radius:99px}
+  .cmp-tbl{border-collapse:collapse; font-size:12px}
+  .cmp-tbl th,.cmp-tbl td{padding:7px 9px; text-align:center; white-space:nowrap; border-bottom:1px solid var(--line)}
+  .cmp-tbl thead th{font-size:10.5px; font-weight:800; color:var(--muted); position:sticky; top:0; background:var(--card-solid)}
+  .cmp-tbl .cmp-nm{text-align:left; position:sticky; left:0; background:var(--card-solid); font-weight:800; z-index:1}
+  .cmp-tbl thead th.cmp-nm{z-index:3}
+  .cmp-tbl td.cmp-nm{box-shadow:1px 0 0 var(--line); min-width:98px}
+  .cmp-tbl .cmp-ref{display:block; font-size:9px; font-weight:700; color:var(--muted); margin-top:1px}
+  .cmp-tbl td.cmp-empty{color:var(--c-zero); font-weight:400}
+  .cmp-tbl tbody tr:last-child td{border-bottom:none}
 </style>
 </head>
 <body>
@@ -586,7 +605,7 @@ const ACCENT_HEX="#0d9488";
 
 let state={ profile:null, checkups:[], delCheckups:{}, updatedAt:null };
 let cfg={ bin:"", key:"" };
-let ui={ tab:"home", range:30, homeMode:"goal", homeGran:"day", metric:"weight", showMetricInput:false, hcMetric:"bmi", cardCollapsed:{}, calYear:null, calMonth:null, tagFilter:null };
+let ui={ tab:"home", range:30, homeMode:"goal", homeGran:"day", metric:"weight", showMetricInput:false, hcMetric:"bmi", cardCollapsed:{}, calYear:null, calMonth:null, tagFilter:null, hcHidden:{} };
 
 /* 추적 지표 정의 (체중 + 체성분) */
 const METRICS=[
@@ -1786,6 +1805,7 @@ function renderCheckup(v){
       '<div class="hc-top"><span class="hc-name">'+hcLabelFull(m)+'</span><span class="hc-led '+LED_CLS[lv]+'"></span></div>'+
       '<div class="hc-val tnum">'+valTxt+'<small>'+m.unit+'</small></div>'+
       '<span class="hc-status '+LEVEL_CLS[lv]+'">'+LEVEL_TXT[lv]+' · 현재</span>'+
+      '<div class="hc-ref">정상 '+hcRefLabel(m.key,sex)+(m.unit?' '+m.unit:'')+'</div>'+
       bwHtml+
       '</div>';
   });
@@ -1803,29 +1823,32 @@ function renderCheckup(v){
         '<span><span class="dot" style="background:'+C_TREND+'"></span>기준선</span></div>';
   html+='</div>';
 
-  /* 회차별 비교 (전체 지표 한눈에) */
+  /* 회차별 비교 (연도별 표 · 동일 연도 세로 정렬 + 지표 선택) */
   if(cks.length>=2){
-    html+='<div class="card" data-sec="hcCompare"><h2>회차별 비교 <span class="tag">처음 → 최근</span></h2><div class="hc-metric-list">';
-    HC_METRICS.forEach(m=>{
-      const series=checkupsWith(m.key); if(series.length===0) return;
-      const first=series[0][m.key], lastV=series[series.length-1][m.key];
-      const dv=lastV-first;
-      const improved = m.lowerBetter ? dv<0 : dv>0;
-      const trendTxt = Math.abs(dv)<1e-9 ? '<span class="muted">–</span>'
-        : '<span style="color:'+(improved?"var(--sig-norm)":"var(--sig-risk)")+'">'+(dv>0?"▲":"▼")+' '+(Math.abs(dv)>=10?fmtInt(Math.abs(dv)):round1(Math.abs(dv)))+'</span>';
-      let valsHtml='';
-      series.forEach((c,i)=>{
-        const lv=hcEval(m.key,c[m.key],sex)||"norm";
-        const vtxt=hcFmt(m.key, c[m.key]);
-        const yr="'"+String(yearOf(c.date)).slice(2);
-        valsHtml+='<span class="vy"><span class="y">'+yr+'</span><span class="v" style="color:'+LEVEL_COLOR[lv]+'">'+vtxt+'</span></span>';
+    const cyears=[...new Set(sortedCheckups().map(c=>yearOf(c.date)))].sort((a,b)=>a-b);
+    const availM=HC_METRICS.filter(m=>checkupsWith(m.key).length>0);
+    html+='<div class="card" data-sec="hcCompare"><h2>회차별 비교 <span class="tag">연도별 · 동일 연도 정렬</span></h2>';
+    html+='<div class="small muted" style="margin:-6px 0 8px">표시할 지표를 켜고 끌 수 있어요 · 표는 가로로 스크롤/드래그</div>';
+    html+='<div class="cmp-toggle">'+availM.map(m=>{
+      const on=!ui.hcHidden[m.key];
+      return '<button type="button" class="cmp-chip'+(on?" on":"")+'" data-cmp="'+m.key+'">'+(on?"✓ ":"")+m.label+'</button>';
+    }).join("")+'</div>';
+    html+='<div class="cmp-scroll"><table class="cmp-tbl"><thead><tr><th class="cmp-nm">지표</th>'+
+      cyears.map(y=>'<th>\''+String(y).slice(2)+'</th>').join("")+'</tr></thead><tbody>';
+    let shown=0;
+    availM.forEach(m=>{
+      if(ui.hcHidden[m.key]) return; shown++;
+      const byYear={}; sortedCheckups().forEach(c=>{ if(c[m.key]!=null&&!isNaN(c[m.key])) byYear[yearOf(c.date)]=c[m.key]; });
+      html+='<tr><td class="cmp-nm">'+hcLabelFull(m)+'<span class="cmp-ref">정상 '+hcRefLabel(m.key,sex)+(m.unit?' '+m.unit:'')+'</span></td>';
+      cyears.forEach(y=>{
+        if(byYear[y]!=null){ const lv=hcEval(m.key,byYear[y],sex)||"norm"; html+='<td style="color:'+LEVEL_COLOR[lv]+';font-weight:700">'+hcFmt(m.key,byYear[y])+'</td>'; }
+        else html+='<td class="cmp-empty">·</td>';
       });
-      html+='<div class="hc-row"><div class="nm">'+hcLabelFull(m)+'<span class="u">'+m.unit+'</span></div>'+
-        '<div class="vals">'+valsHtml+'</div>'+
-        '<div class="trend">'+trendTxt+'</div></div>'+
-        '<div class="hc-spec">정상 기준 '+hcRefLabel(m.key,sex)+(m.unit?' '+m.unit:'')+'</div>';
+      html+='</tr>';
     });
-    html+='</div></div>';
+    html+='</tbody></table></div>';
+    if(shown===0) html+='<div class="empty">표시할 지표를 하나 이상 선택하세요.</div>';
+    html+='</div>';
   }
 
   html+=checkupInsightCardHtml();
@@ -1856,6 +1879,7 @@ function renderCheckup(v){
 
   $("#btnAddCheckup").onclick=()=>openCheckup(null);
   v.querySelectorAll("#hcSeg button[data-hc]").forEach(b=>b.onclick=()=>{ ui.hcMetric=b.dataset.hc; renderView(); });
+  v.querySelectorAll(".cmp-chip[data-cmp]").forEach(b=>b.onclick=()=>{ const k=b.dataset.cmp; ui.hcHidden[k]=!ui.hcHidden[k]; renderView(); });
   v.querySelectorAll("[data-cedit]").forEach(b=>b.onclick=()=>openCheckup(b.dataset.cedit));
   v.querySelectorAll("[data-cdel]").forEach(b=>b.onclick=()=>{
     if(confirm(fmtYear(b.dataset.cdel)+" 검진 기록을 삭제할까요?")){ deleteCheckup(b.dataset.cdel); save(); renderView(); toast("삭제됨"); }
@@ -1973,7 +1997,7 @@ function decorateCards(scope){
     h2.appendChild(btn);
     if(collapsed) [...card.children].forEach(ch=>{ if(ch!==h2) ch.style.display="none"; });
   });
-  scope.querySelectorAll(".hc-grid, .hc-row .vals").forEach(enableDragScroll);
+  scope.querySelectorAll(".hc-grid, .hc-row .vals, .cmp-scroll").forEach(enableDragScroll);
   scope.querySelectorAll(".seg.draggable").forEach(enableSegDrag);
 }
 
