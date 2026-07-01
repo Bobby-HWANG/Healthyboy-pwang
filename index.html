@@ -342,6 +342,81 @@
   .cele-toast.show{opacity:1; transform:translateX(-50%) scale(1)}
 
   @media (prefers-reduced-motion: reduce){ *{animation-duration:.001s!important; transition-duration:.001s!important} }
+  /* ===== 추가 기능 ===== */
+  .plateau{margin-top:14px; padding:12px 14px; border-radius:13px; font-size:12.5px; font-weight:600;
+    background:rgba(217,119,6,.10); color:var(--warn); border:1px solid rgba(217,119,6,.22)}
+  @media (prefers-color-scheme: dark){ .plateau{background:rgba(251,191,36,.09)} }
+  .digest{display:grid; grid-template-columns:repeat(4,1fr); gap:9px}
+  .digest .dg{border:1px solid var(--card-brd); border-radius:13px; padding:11px 8px; text-align:center;
+    background:linear-gradient(160deg,rgba(255,255,255,.4),rgba(255,255,255,.1))}
+  @media (prefers-color-scheme: dark){ .digest .dg{background:rgba(255,255,255,.03)} }
+  .digest .dg .k{font-size:10px; color:var(--muted); font-weight:700}
+  .digest .dg .v{font-size:18px; font-weight:800; margin-top:3px; letter-spacing:-.3px}
+  .digest .dg .v small{font-size:10px; font-weight:700; color:var(--muted); margin-left:1px}
+  @media (max-width:480px){ .digest{grid-template-columns:repeat(2,1fr)} }
+  .badges{display:grid; grid-template-columns:repeat(5,1fr); gap:10px}
+  @media (max-width:480px){ .badges{grid-template-columns:repeat(3,1fr)} }
+  .badge{border:1px solid var(--card-brd); border-radius:14px; padding:11px 6px 9px; text-align:center; opacity:.5;
+    background:linear-gradient(160deg,rgba(255,255,255,.35),rgba(255,255,255,.08)); transition:transform .1s}
+  @media (prefers-color-scheme: dark){ .badge{background:rgba(255,255,255,.03)} }
+  .badge.on{opacity:1; border-color:rgba(13,148,136,.35); box-shadow:0 2px 10px rgba(13,148,136,.14)}
+  .badge .bi{font-size:24px; line-height:1; filter:grayscale(1)}
+  .badge.on .bi{filter:none}
+  .badge .bn{font-size:10.5px; font-weight:800; margin-top:5px; color:var(--ink2)}
+  .badge .bd{font-size:9px; font-weight:800; color:var(--accent); margin-top:3px}
+  .badge .bp{height:4px; border-radius:99px; background:var(--line); overflow:hidden; margin:6px 3px 0}
+  .badge .bp i{display:block; height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .ms-head{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:12px}
+  .ms-count{display:flex; flex-direction:column; align-items:center; justify-content:center; width:78px; height:78px; border-radius:18px; flex:0 0 auto}
+  .ms-count .n{font-size:30px; font-weight:800; line-height:1}
+  .ms-count .d{font-size:10px; font-weight:800; margin-top:2px}
+  .ms-count.ms-norm{background:rgba(16,185,129,.12); color:var(--sig-norm)}
+  .ms-count.ms-watch{background:rgba(245,158,11,.13); color:var(--sig-watch)}
+  .ms-count.ms-risk{background:rgba(239,68,68,.13); color:var(--sig-risk)}
+  .ms-txt{flex:1 1 160px; font-size:12.5px; line-height:1.5}
+  .ms-badge{display:inline-block; font-size:12px; font-weight:800; padding:3px 11px; border-radius:99px}
+  .ms-badge.ms-norm{background:rgba(16,185,129,.14); color:var(--sig-norm)}
+  .ms-badge.ms-watch{background:rgba(245,158,11,.14); color:var(--sig-watch)}
+  .ms-badge.ms-risk{background:rgba(239,68,68,.14); color:var(--sig-risk)}
+  .ms-list{display:flex; flex-direction:column; gap:0}
+  .ms-item{display:flex; align-items:center; gap:9px; padding:9px 2px; border-bottom:1px solid var(--line); font-size:13px}
+  .ms-item:last-child{border-bottom:none}
+  .ms-led{width:9px; height:9px; border-radius:50%; flex:0 0 auto}
+  .ms-l{font-weight:800; min-width:74px}
+  .ms-v{font-weight:800; color:var(--ink2)}
+  .ms-v.hit{color:var(--sig-risk)}
+  .ms-s{margin-left:auto; font-size:11px; font-weight:700; color:var(--muted)}
+  .tagchips{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
+  .tagchip{font-size:12px; font-weight:700; padding:6px 11px; border-radius:999px; border:1px solid var(--card-brd);
+    background:var(--card-solid); color:var(--muted); cursor:pointer; transition:all .12s}
+  .tagchip:active{transform:scale(.95)}
+  .tagchip.on{background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; border-color:transparent}
+  .rec .chip.tag-chip{background:rgba(13,148,136,.12); color:var(--accent)}
+  @media (prefers-color-scheme: dark){ .rec .chip.tag-chip{background:rgba(45,212,191,.12)} }
+  .cal-nav{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px}
+  .cal-title{font-size:14px; font-weight:800}
+  .cal-btn{width:34px; height:34px; border-radius:10px; border:1px solid var(--card-brd); background:var(--card-solid);
+    color:var(--ink); font-size:18px; font-weight:800; cursor:pointer; line-height:1}
+  .cal-btn:active{transform:scale(.94)}
+  .cal-head{display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:4px}
+  .cal-dow{text-align:center; font-size:10.5px; font-weight:800; color:var(--muted); padding:2px 0}
+  .cal-dow.we{color:var(--bad)}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px}
+  .cal-cell{aspect-ratio:1; border-radius:9px; border:1px solid transparent; background:var(--line);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; cursor:pointer; position:relative; transition:transform .1s}
+  .cal-cell:active{transform:scale(.93)}
+  .cal-cell.empty{background:transparent; cursor:default}
+  .cal-cell.future{opacity:.4; cursor:default}
+  .cal-cell.has{background:linear-gradient(160deg,rgba(13,148,136,.18),rgba(13,148,136,.06)); border-color:rgba(13,148,136,.25)}
+  @media (prefers-color-scheme: dark){ .cal-cell.has{background:rgba(45,212,191,.12)} }
+  .cal-cell.today{border-color:var(--accent); border-width:2px}
+  .cal-cell .cal-d{font-size:11px; font-weight:700; color:var(--ink2)}
+  .cal-cell.has .cal-d{color:var(--accent)}
+  .cal-cell .cal-w{font-size:9.5px; font-weight:800; color:var(--accent)}
+  .speed-tag{font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:99px; margin-left:6px; white-space:nowrap}
+  .speed-good{background:rgba(16,185,129,.15); color:var(--sig-norm)}
+  .speed-fast{background:rgba(245,158,11,.15); color:var(--sig-watch)}
+  .speed-slow{background:rgba(100,116,139,.18); color:var(--muted)}
 </style>
 </head>
 <body>
@@ -511,7 +586,7 @@ const ACCENT_HEX="#0d9488";
 
 let state={ profile:null, checkups:[], delCheckups:{}, updatedAt:null };
 let cfg={ bin:"", key:"" };
-let ui={ tab:"home", range:30, homeMode:"goal", homeGran:"day", metric:"weight", showMetricInput:false, hcMetric:"bmi", cardCollapsed:{} };
+let ui={ tab:"home", range:30, homeMode:"goal", homeGran:"day", metric:"weight", showMetricInput:false, hcMetric:"bmi", cardCollapsed:{}, calYear:null, calMonth:null, tagFilter:null };
 
 /* 추적 지표 정의 (체중 + 체성분) */
 const METRICS=[
@@ -821,6 +896,186 @@ function buildInsights(p){
 }
 
 /* ============ 저장 / 로드 ============ */
+/* ============ 추가 기능 (태그 · 페이스 · 정체기 · 다이제스트 · 배지 · 대사증후군 · 연동 인사이트 · 캘린더) ============ */
+const TAGS=[
+  {id:"운동", ic:"🏃"}, {id:"과식", ic:"🍔"}, {id:"외식", ic:"🍽️"}, {id:"음주", ic:"🍺"},
+  {id:"야식", ic:"🌙"}, {id:"물충분", ic:"💧"}, {id:"단식", ic:"⏱️"}, {id:"컨디션↓", ic:"😴"}
+];
+
+/* 4) 건강한 감량 속도 가이드 */
+function paceSafety(weeklyRate){
+  if(weeklyRate==null) return null;
+  if(weeklyRate < -1.0) return {level:"fast", text:"감량이 다소 빠릅니다. 주당 0.5~1kg가 근육 손실 없이 지속 가능한 속도예요."};
+  if(weeklyRate <= -0.25) return {level:"good", text:"권장 감량 속도(주당 0.5~1kg) 범위입니다. 이 페이스가 이상적이에요."};
+  if(weeklyRate < 0.1) return {level:"slow", text:"감량이 거의 정체 상태예요. 식사·활동을 점검해볼 시점입니다."};
+  return {level:"gain", text:"체중이 늘고 있는 추세입니다."};
+}
+
+/* 3) 정체기(플래토) 감지 — 최근 체중이 좁은 밴드에 머문 연속 일수 */
+function detectPlateau(p){
+  const recs=recsWith(p,"weight"); if(recs.length<5) return {inPlateau:false};
+  const cur=recs[recs.length-1].weight; const TH=0.7;
+  let i=recs.length-1;
+  while(i>0 && Math.abs(recs[i-1].weight-cur)<=TH) i--;
+  const days=daysBetween(recs[i].date, recs[recs.length-1].date);
+  return { inPlateau: days>=14, days, since:recs[i].date, band:TH };
+}
+
+/* 5) 주간 다이제스트 */
+function weeklyDigest(p){
+  const recs=recsWith(p,"weight"); if(recs.length===0) return null;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const weekStart=today.getTime()-6*86400000;
+  const wk=recs.filter(r=>parseDate(r.date).getTime()>=weekStart);
+  const st=statsFor(p,"weight");
+  const vals=wk.map(r=>r.weight);
+  return {
+    loggedDays: new Set(wk.map(r=>r.date)).size,
+    low: vals.length?Math.min(...vals):null,
+    weekVsPrev: st?st.weekVsPrev:null,
+    change: wk.length>=2? wk[wk.length-1].weight-wk[0].weight : null,
+    last: wk.length?wk[wk.length-1].weight:null
+  };
+}
+
+/* 6) 배지 / 업적 */
+function computeBadges(p){
+  const recs=recsWith(p,"weight");
+  const cur=recs.length?recs[recs.length-1].weight:null;
+  const start=p.startWeight!=null?p.startWeight:(recs.length?recs[0].weight:null);
+  const lost=(start!=null&&cur!=null)? start-cur : 0;
+  const ls=longestStreak(p), total=recs.length;
+  const min=recs.length?Math.min(...recs.map(r=>r.weight)):null;
+  const losing=p.goalWeight!=null&&start!=null&&p.goalWeight<start;
+  const reachedGoal=p.goalWeight!=null&&cur!=null&&losing&&cur<=p.goalWeight;
+  let bmiDrop=false;
+  if(p.height&&start!=null&&cur!=null){ bmiDrop = bmiCat(bmiOf(start,p.height)).t!==bmiCat(bmiOf(cur,p.height)).t && cur<start; }
+  return [
+    {ic:"🌱", name:"시작", desc:"첫 기록 완료", achieved: total>=1, progress:Math.min(1,total)},
+    {ic:"🔥", name:"3일 연속", desc:"3일 연속 기록", achieved: ls>=3, progress:Math.min(1,ls/3)},
+    {ic:"⚡", name:"7일 연속", desc:"7일 연속 기록", achieved: ls>=7, progress:Math.min(1,ls/7)},
+    {ic:"📅", name:"30일 기록", desc:"누적 30일 기록", achieved: total>=30, progress:Math.min(1,total/30)},
+    {ic:"✨", name:"첫 감량", desc:"시작 대비 1kg 감량", achieved: lost>=1, progress:Math.min(1,Math.max(0,lost)/1)},
+    {ic:"💪", name:"5kg 감량", desc:"시작 대비 5kg 감량", achieved: lost>=5, progress:Math.min(1,Math.max(0,lost)/5)},
+    {ic:"🏆", name:"10kg 감량", desc:"시작 대비 10kg 감량", achieved: lost>=10, progress:Math.min(1,Math.max(0,lost)/10)},
+    {ic:"📉", name:"BMI 개선", desc:"BMI 단계 하락", achieved: bmiDrop, progress: bmiDrop?1:0},
+    {ic:"⭐", name:"최저 경신", desc:"기록 중 최저 체중", achieved: cur!=null&&min!=null&&cur<=min&&recs.length>=2, progress: (cur!=null&&min!=null&&cur<=min&&recs.length>=2)?1:0},
+    {ic:"🎯", name:"목표 달성", desc:"목표 체중 도달", achieved: reachedGoal, progress: (losing&&start!=null&&cur!=null&&p.goalWeight!=null&&start!==p.goalWeight)? Math.min(1,Math.max(0,(start-cur)/(start-p.goalWeight))):0},
+  ];
+}
+
+/* 1) 대사증후군 자동 판정 (한국 기준, 5개 중 3개↑) */
+function metabolicSyndrome(c, sex){
+  if(!c) return null;
+  const male=sex!=="F"; const crit=[];
+  if(c.waist!=null) crit.push({label:"허리둘레", hit: male? c.waist>=90:c.waist>=85, val:hcFmt("waist",c.waist)+"cm", spec:(male?"≥90":"≥85")+"cm"});
+  if(c.systolic!=null||c.diastolic!=null) crit.push({label:"혈압", hit:(c.systolic!=null&&c.systolic>=130)||(c.diastolic!=null&&c.diastolic>=85), val:(c.systolic!=null?Math.round(c.systolic):"-")+"/"+(c.diastolic!=null?Math.round(c.diastolic):"-"), spec:"≥130/85"});
+  if(c.glucose!=null) crit.push({label:"공복혈당", hit:c.glucose>=100, val:Math.round(c.glucose)+"", spec:"≥100mg/dL"});
+  if(c.tg!=null) crit.push({label:"중성지방", hit:c.tg>=150, val:Math.round(c.tg)+"", spec:"≥150mg/dL"});
+  if(c.hdl!=null) crit.push({label:"HDL", hit: male? c.hdl<40:c.hdl<50, val:Math.round(c.hdl)+"", spec:(male?"<40":"<50")+"mg/dL"});
+  const hits=crit.filter(x=>x.hit).length;
+  return { crit, measured:crit.length, hits, isMS:hits>=3, undetermined:crit.length<5 };
+}
+
+/* 2) 체중 ↔ 검진지표 연동 인사이트 */
+function checkupWeightInsight(){
+  const series=checkupsWith("weight"); if(series.length<2) return [];
+  let lo=series[0], hi=series[0];
+  series.forEach(c=>{ if(c.weight<lo.weight)lo=c; if(c.weight>hi.weight)hi=c; });
+  const out=[];
+  out.push("검진 기록상 체중이 가장 낮았던 해는 "+yearOf(lo.date)+"년("+hcFmt("weight",lo.weight)+"kg), 가장 높았던 해는 "+yearOf(hi.date)+"년("+hcFmt("weight",hi.weight)+"kg)입니다.");
+  const cmpKeys=["bmi","waist","systolic","glucose","alt","ggt"]; const diffs=[];
+  cmpKeys.forEach(k=>{ if(lo[k]!=null&&hi[k]!=null&&Math.abs(hi[k]-lo[k])>=1){ diffs.push((hcDef(k)?hcDef(k).label:k)+" "+hcFmt(k,lo[k])+"→"+hcFmt(k,hi[k])); } });
+  if(diffs.length) out.push("체중이 낮았던 해가 대체로 지표도 더 좋았어요 — "+diffs.slice(0,3).join(", ")+".");
+  const p=state.profile; const curW=latest(p)?latest(p).weight:null;
+  if(curW!=null && lo.weight!=null && curW>lo.weight+0.1) out.push("현재 "+fmtKg(curW)+"kg는 최저 검진체중보다 "+fmtKg(curW-lo.weight)+"kg 높아요. 그 시절 지표로 돌아가는 걸 목표로 삼아볼 수 있어요.");
+  return out;
+}
+
+/* ---------- 렌더 헬퍼 (html 반환) ---------- */
+function plateauBannerHtml(p){
+  const pl=detectPlateau(p);
+  if(!pl.inPlateau) return "";
+  return '<div class="plateau">🟰 <b>정체기 '+pl.days+'일째</b> — 최근 체중이 ±'+pl.band+'kg 안에 머물고 있어요. 식단·수분·활동량을 살짝 바꿔보면 도움이 됩니다.</div>';
+}
+function weeklyCardHtml(p){
+  const w=weeklyDigest(p); if(!w) return "";
+  const chg = w.change; const chgCls = chg==null?"":(chg<=0?"delta-good":"delta-bad");
+  return '<div class="card" data-sec="weekly"><h2>이번 주 다이제스트 <span class="tag">최근 7일</span></h2>'+
+    '<div class="digest">'+
+    '<div class="dg"><div class="k">기록</div><div class="v tnum">'+w.loggedDays+'<small>일</small></div></div>'+
+    '<div class="dg"><div class="k">주간 변화</div><div class="v tnum '+chgCls+'">'+(chg!=null?(chg>0?"+":"")+round1(chg).toFixed(1):"-")+'<small>kg</small></div></div>'+
+    '<div class="dg"><div class="k">vs 지난주</div><div class="v tnum '+(w.weekVsPrev==null?"":(w.weekVsPrev<=0?"delta-good":"delta-bad"))+'">'+(w.weekVsPrev!=null?(w.weekVsPrev>0?"+":"")+round1(w.weekVsPrev).toFixed(1):"-")+'<small>kg</small></div></div>'+
+    '<div class="dg"><div class="k">이번 주 최저</div><div class="v tnum">'+(w.low!=null?fmtKg(w.low):"-")+'<small>kg</small></div></div>'+
+    '</div></div>';
+}
+function badgesCardHtml(p){
+  const B=computeBadges(p); const got=B.filter(b=>b.achieved).length;
+  let html='<div class="card" data-sec="badges"><h2>배지 · 업적 <span class="tag">'+got+'/'+B.length+' 달성</span></h2><div class="badges">';
+  B.forEach(b=>{
+    const pct=Math.round((b.progress||0)*100);
+    html+='<div class="badge'+(b.achieved?" on":"")+'" title="'+escapeHtml(b.desc)+'">'+
+      '<div class="bi">'+b.ic+'</div><div class="bn">'+b.name+'</div>'+
+      (b.achieved?'<div class="bd">달성</div>':'<div class="bp"><i style="width:'+pct+'%"></i></div>')+
+      '</div>';
+  });
+  html+='</div></div>';
+  return html;
+}
+function metSynCardHtml(sex){
+  const lc=latestCheckup(); const ms=metabolicSyndrome(lc, sex);
+  if(!ms || ms.measured===0) return "";
+  const badgeCls = ms.isMS?"ms-risk":(ms.hits>=1?"ms-watch":"ms-norm");
+  const badgeTxt = ms.isMS?"대사증후군 해당":(ms.hits>=1?"주의 관찰":"정상");
+  let html='<div class="card" data-sec="metsyn"><h2>대사증후군 판정 <span class="tag">'+fmtYear(lc.date)+' 기준</span></h2>';
+  html+='<div class="ms-head"><div class="ms-count '+badgeCls+'"><span class="n tnum">'+ms.hits+'</span><span class="d">/ '+ms.measured+' 해당</span></div>'+
+    '<div class="ms-txt"><span class="ms-badge '+badgeCls+'">'+badgeTxt+'</span><br><span class="muted small">5개 위험요인 중 3개 이상이면 대사증후군</span>'+(ms.undetermined?'<br><span class="muted small">일부 항목은 미측정('+ms.measured+'/5)이라 참고용입니다.</span>':'')+'</div></div>';
+  html+='<div class="ms-list">';
+  ms.crit.forEach(x=>{
+    html+='<div class="ms-item"><span class="ms-led '+(x.hit?"led-risk":"led-norm")+'"></span><span class="ms-l">'+x.label+'</span><span class="ms-v tnum'+(x.hit?" hit":"")+'">'+x.val+'</span><span class="ms-s">기준 '+x.spec+'</span></div>';
+  });
+  html+='</div></div>';
+  return html;
+}
+function checkupInsightCardHtml(){
+  const ins=checkupWeightInsight(); if(!ins.length) return "";
+  let html='<div class="card" data-sec="hcInsight"><h2>체중 · 검진지표 연동 인사이트</h2><div class="ins">';
+  ins.forEach(t=>{ html+='<div class="i"><span class="b"></span><span>'+escapeHtml(t)+'</span></div>'; });
+  html+='</div></div>';
+  return html;
+}
+function tagChipsHtml(idPrefix){
+  return '<div class="tagchips" id="'+idPrefix+'Tags">'+TAGS.map(t=>'<button type="button" class="tagchip" data-tag="'+escapeHtml(t.id)+'">'+t.ic+' '+t.id+'</button>').join("")+'</div>';
+}
+/* 7) 캘린더(월별) 뷰 */
+function calendarCardHtml(p){
+  const now=new Date();
+  if(ui.calYear==null){ ui.calYear=now.getFullYear(); ui.calMonth=now.getMonth(); }
+  const y=ui.calYear, m=ui.calMonth;
+  const monthLabel=y+"년 "+(m+1)+"월";
+  const weights={}; (p.records||[]).forEach(r=>weights[r.date]=r);
+  const first=new Date(y,m,1); const startDow=(first.getDay()+6)%7;
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const today=todayStr();
+  const dows=["월","화","수","목","금","토","일"];
+  let head=dows.map((d,i)=>'<div class="cal-dow'+(i>=5?" we":"")+'">'+d+'</div>').join("");
+  let cells='';
+  for(let i=0;i<startDow;i++) cells+='<div class="cal-cell empty"></div>';
+  let monthLogged=0;
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=y+"-"+z2(m+1)+"-"+z2(d);
+    const r=weights[ds]; if(r)monthLogged++;
+    const isToday=ds===today, isFuture=ds>today;
+    let cls="cal-cell"+(r?" has":"")+(isToday?" today":"")+(isFuture?" future":"");
+    let inner='<span class="cal-d">'+d+'</span>'+(r?'<span class="cal-w tnum">'+fmtKg(r.weight)+'</span>':'');
+    cells+='<div class="'+cls+'" data-cal="'+ds+'">'+inner+'</div>';
+  }
+  return '<div class="card" data-sec="calendar"><h2>캘린더 <span class="tag">이 달 '+monthLogged+'일 기록</span></h2>'+
+    '<div class="cal-nav"><button class="cal-btn" data-calmove="-1">‹</button><div class="cal-title">'+monthLabel+'</div><button class="cal-btn" data-calmove="1">›</button></div>'+
+    '<div class="cal-head">'+head+'</div><div class="cal-grid">'+cells+'</div>'+
+    '<div class="small muted" style="margin-top:8px">날짜를 누르면 그날 기록을 추가·수정할 수 있어요.</div></div>';
+}
+
 function ensureProfile(){
   if(!state.profile){
     state.profile={ name:"나", sex:"M", height:null, birthYear:null, startWeight:null, goalWeight:null, goalDate:null, records:[], del:{}, u:Date.now() };
@@ -980,7 +1235,9 @@ function renderHome(v,p){
   html+='<div class="field" style="flex:1 1 110px"><label>체중 (kg)</label><input id="homeWeight" type="number" inputmode="decimal" step="0.1" placeholder="'+(cur?fmtKg(cur):"00.0")+'"></div>';
   html+='<div class="field" style="flex:2 1 140px"><label>메모 (선택)</label><input id="homeMemo" placeholder="예: 운동함"></div>';
   html+='<button class="btn" id="homeAddRec">기록</button>';
-  html+='</div></div>';
+  html+='</div>';
+  html+=tagChipsHtml("home");
+  html+='</div>';
 
   /* 히어로: 원형 달성률 링 */
   html+='<div class="card"><div class="hero">';
@@ -1000,6 +1257,8 @@ function renderHome(v,p){
   html+='</div></div>';
   html+=paceFeedback(p);
   html+='</div>';
+  html+=plateauBannerHtml(p);
+  html+=weeklyCardHtml(p);
 
   /* 핵심 스탯 4칸 */
   html+='<div class="card"><h2>요약</h2><div class="summary">';
@@ -1017,6 +1276,8 @@ function renderHome(v,p){
   const grans=[["day","일자별"],["week","주차별"],["month","월별"]];
   html+='<div class="rangebar">'+grans.map(g=>'<button data-hgran="'+g[0]+'" class="'+(ui.homeGran===g[0]?"active":"")+'">'+g[1]+'</button>').join("")+'</div>';
   html+='</div>';
+
+  html+=badgesCardHtml(p);
 
   /* 건강검진 요약 미리보기 */
   const lc=latestCheckup(); const hs=healthScore(lc);
@@ -1055,6 +1316,7 @@ function renderHome(v,p){
     if(isNaN(w)){toast("체중을 입력하세요");return;}
     if(w<25||w>300){toast("체중은 25~300kg 범위로 입력하세요");return;}
     const rec={ date, weight:round1(w), memo:$("#homeMemo").value.trim() };
+    const htags=[...document.querySelectorAll("#homeTags .tagchip.on")].map(b=>b.dataset.tag); if(htags.length) rec.tags=htags;
     const beforeMs=milestonesReachedCount(p);
     const beforeLow = recsWith(p,"weight").length? Math.min(...recsWith(p,"weight").map(r=>r.weight)) : null;
     upsertRecord(p,rec);
@@ -1065,6 +1327,7 @@ function renderHome(v,p){
   v.querySelectorAll(".seg button[data-hmode]").forEach(b=>b.onclick=()=>{ui.homeMode=b.dataset.hmode;renderView();});
   v.querySelectorAll(".rangebar button[data-hgran]").forEach(b=>b.onclick=()=>{ui.homeGran=b.dataset.hgran;renderView();});
   const gc=$("#goCheckup"); if(gc) gc.onclick=()=>{ui.tab="checkup";render();window.scrollTo({top:0});};
+  v.querySelectorAll(".tagchip").forEach(b=>b.onclick=()=>b.classList.toggle("on"));
 }
 
 /* ---------- 체중 상세 화면 (기존 개인 화면 전체 유지) ---------- */
@@ -1087,6 +1350,7 @@ function renderDetail(v,p){
   html+='<div class="field" style="flex:2 1 150px"><label>메모 (선택)</label><input id="inMemo" placeholder="예: 운동함"></div>';
   html+='<button class="btn" id="btnAddRec">기록</button>';
   html+='</div>';
+  html+=tagChipsHtml("in");
   html+='<button class="link-toggle" id="btnMoreInput">'+(ui.showMetricInput?"− 체성분 닫기":"+ 체성분 입력 (선택)")+'</button>';
   html+='<div id="metricInputs" class="'+(ui.showMetricInput?"":"hide")+'"><div class="inrow">'+
     '<div class="field" style="flex:1 1 96px"><label>체지방률 %</label><input id="inFat" type="number" inputmode="decimal" step="0.1"></div>'+
@@ -1173,6 +1437,8 @@ function renderDetail(v,p){
     html+='</div></div>';
   }
 
+  html+=badgesCardHtml(p);
+
   /* 추이 (지표 선택) */
   html+='<div class="card"><h2>추이</h2>';
   const avail=METRICS.filter(m=>m.key==="weight"||hasMetric(p,m.key));
@@ -1189,6 +1455,7 @@ function renderDetail(v,p){
   html+='<div class="m"><div class="k">최장 연속</div><div class="v tnum">'+longestStreak(p)+'<small style="font-size:11px"> 일</small></div></div>';
   html+='<div class="m"><div class="k">이번 달</div><div class="v tnum">'+loggedThisMonth(p)+'<small style="font-size:11px"> 일</small></div></div>';
   html+='</div><div style="margin-top:14px"><div class="small muted" style="margin-bottom:8px">최근 12주 기록</div>'+heatmapHTML(p)+'</div></div>';
+  html+=calendarCardHtml(p);
 
   /* 인사이트 */
   const ins=buildInsights(p);
@@ -1209,6 +1476,7 @@ function renderDetail(v,p){
       if(r.bodyFat!=null) chips+='<span class="chip">체지방 '+fmtKg(r.bodyFat)+'%</span>';
       if(r.muscle!=null) chips+='<span class="chip">근육 '+fmtKg(r.muscle)+'kg</span>';
       if(r.waist!=null) chips+='<span class="chip">허리 '+fmtKg(r.waist)+'cm</span>';
+      if(r.tags&&r.tags.length) r.tags.forEach(t=>chips+='<span class="chip tag-chip">'+escapeHtml(t)+'</span>');
       const midInner = (r.memo? '<div class="memo">'+escapeHtml(r.memo)+'</div>':'') + (chips? '<div class="chips">'+chips+'</div>':'');
       html+='<div class="rec"><span class="date">'+escapeHtml(r.date)+'</span>'+
         '<span class="w tnum">'+fmtKg(r.weight)+'kg</span>'+
@@ -1234,6 +1502,7 @@ function renderDetail(v,p){
     const rec={ date:date, weight:round1(w), memo:$("#inMemo").value.trim() };
     const f=val($("#inFat").value), mu=val($("#inMuscle").value), wa=val($("#inWaist").value);
     if(f!=null) rec.bodyFat=round1(f); if(mu!=null) rec.muscle=round1(mu); if(wa!=null) rec.waist=round1(wa);
+    const itags=[...document.querySelectorAll("#inTags .tagchip.on")].map(b=>b.dataset.tag); if(itags.length) rec.tags=itags;
     const beforeMs=milestonesReachedCount(p);
     const beforeLow = recsWith(p,"weight").length? Math.min(...recsWith(p,"weight").map(r=>r.weight)) : null;
     upsertRecord(p,rec);
@@ -1249,6 +1518,9 @@ function renderDetail(v,p){
     if(confirm(b.dataset.del+" 기록을 삭제할까요?")){ deleteRecord(p, b.dataset.del); save(); renderView(); toast("삭제됨"); }
   });
   $("#btnEditPerson").onclick=()=>openPerson(p);
+  v.querySelectorAll(".tagchip").forEach(b=>b.onclick=()=>b.classList.toggle("on"));
+  v.querySelectorAll("[data-calmove]").forEach(b=>b.onclick=()=>{ let mm=ui.calMonth+parseInt(b.dataset.calmove), yy=ui.calYear; if(mm<0){mm=11;yy--;} if(mm>11){mm=0;yy++;} ui.calMonth=mm; ui.calYear=yy; renderView(); });
+  v.querySelectorAll("[data-cal]").forEach(c=>c.onclick=()=>{ const ds=c.dataset.cal; if(ds>todayStr())return; openRec(p, ds); });
 }
 
 /* 페이스 */
@@ -1257,7 +1529,10 @@ function paceFeedback(p){
   if(!reg||!last){ return '<div class="pace neutral">추세 분석을 위해 기록을 2개 이상 입력하세요.</div>'; }
   const weekly=reg.slope*7; const wkAbs=round1(Math.abs(weekly)).toFixed(1);
   const dir = weekly<-0.01 ? "감량" : weekly>0.01 ? "증량" : "유지";
-  const trendLine = dir==="유지" ? '최근 추세: <b>거의 변화 없음</b>' : '최근 추세: <b>주당 '+(weekly>0?"+":"-")+wkAbs+'kg</b> ('+dir+')';
+  const ps=paceSafety(weekly);
+  let speedBadge='';
+  if(ps && dir==="감량"){ const t={good:"✓ 권장 속도",fast:"⚠ 다소 빠름",slow:"● 정체 근접"}[ps.level]||''; if(t) speedBadge=' <span class="speed-tag speed-'+ps.level+'" title="'+escapeHtml(ps.text)+'">'+t+'</span>'; }
+  const trendLine = (dir==="유지" ? '최근 추세: <b>거의 변화 없음</b>' : '최근 추세: <b>주당 '+(weekly>0?"+":"-")+wkAbs+'kg</b> ('+dir+')') + speedBadge;
   if(p.goalWeight==null) return '<div class="pace neutral">'+trendLine+'</div>';
   const losing = p.goalWeight < last.weight - 0.05, gaining = p.goalWeight > last.weight + 0.05;
   if(!losing && !gaining) return '<div class="pace">목표 체중을 달성했습니다! 잘하셨어요.</div>';
@@ -1489,6 +1764,8 @@ function renderCheckup(v){
   }
   html+='</div>';
 
+  html+=metSynCardHtml(sex);
+
   /* 신호등 지표 그리드 (최근 검진 + 직전 대비) */
   html+='<div class="card" data-sec="hcRecent"><h2>최근 지표 <span class="tag">'+fmtYear(lc.date)+' 기준 · 직전 대비</span></h2>';
   html+='<div class="hc-grid">';
@@ -1550,6 +1827,8 @@ function renderCheckup(v){
     });
     html+='</div></div>';
   }
+
+  html+=checkupInsightCardHtml();
 
   /* 검진 기록 카드 (수정/삭제) */
   html+='<div class="card" data-sec="hcRecords"><h2>검진 기록</h2>';
@@ -1759,10 +2038,11 @@ $("#btnSavePerson").onclick=()=>{
 let recEditOrigDate=null;
 function openRec(p,date){
   recEditOrigDate=date; const r=p.records.find(x=>x.date===date);
-  $("#recTitle").textContent="기록 수정";
-  $("#rDate").value=r.date; $("#rWeight").value=r.weight;
-  $("#rFat").value=r.bodyFat!=null?r.bodyFat:""; $("#rMuscle").value=r.muscle!=null?r.muscle:""; $("#rWaist").value=r.waist!=null?r.waist:"";
-  $("#rMemo").value=r.memo||""; $("#recOverlay").classList.add("show");
+  $("#recTitle").textContent = r ? "기록 수정" : "기록 추가";
+  $("#rDate").value=date;
+  $("#rWeight").value = r ? r.weight : "";
+  $("#rFat").value=(r&&r.bodyFat!=null)?r.bodyFat:""; $("#rMuscle").value=(r&&r.muscle!=null)?r.muscle:""; $("#rWaist").value=(r&&r.waist!=null)?r.waist:"";
+  $("#rMemo").value=(r&&r.memo)?r.memo:""; $("#recOverlay").classList.add("show");
 }
 function closeRec(){$("#recOverlay").classList.remove("show");}
 $("#btnSaveRec").onclick=()=>{
