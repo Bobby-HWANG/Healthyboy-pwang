@@ -231,7 +231,7 @@
 
   /* ===== 건강검진 ===== */
   .hc-grid{display:grid; grid-template-rows:repeat(3,auto); grid-auto-flow:column; grid-auto-columns:minmax(150px,1fr);
-    gap:10px; overflow-x:auto; -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity; padding:2px 2px 12px; margin:0 -2px; cursor:grab}
+    gap:10px; overflow-x:auto; -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity; padding:2px 2px 12px; margin:0 -2px; cursor:default}
   .hc-grid.dragging{cursor:grabbing; scroll-snap-type:none; user-select:none}
   .hc-grid::-webkit-scrollbar{height:7px}
   .hc-grid::-webkit-scrollbar-track{background:transparent}
@@ -436,6 +436,10 @@
   .cmp-tbl .cmp-ref{display:block; font-size:9px; font-weight:700; color:var(--muted); margin-top:1px}
   .cmp-tbl td.cmp-empty{color:var(--c-zero); font-weight:400}
   .cmp-tbl tbody tr:last-child td{border-bottom:none}
+  .hc-item[draggable="true"]{cursor:grab}
+  .hc-item[draggable="true"]:active{cursor:grabbing}
+  .hc-item.dragging-card{opacity:.4}
+  .hc-item.drag-over{outline:2px dashed var(--accent); outline-offset:-2px}
 </style>
 </head>
 <body>
@@ -619,6 +623,7 @@ function metricDef(k){ return METRICS.find(m=>m.key===k)||METRICS[0]; }
 /* ============ 건강검진 지표 정의 + 정상범위 판정 ============ */
 /* level: norm(정상)·watch(주의)·risk(위험) / lowerBetter: 낮을수록 좋음 여부(차트 추세 해석용) */
 const HC_METRICS=[
+  {key:"weight",    label:"체중",         unit:"kg",   group:"신체",  lowerBetter:true,  color:"#0284c7"},
   {key:"bmi",       label:"체질량지수",   unit:"",     group:"신체",  lowerBetter:true,  color:"#0d9488"},
   {key:"waist",     label:"허리둘레",     unit:"cm",   group:"신체",  lowerBetter:true,  color:"#3b82f6"},
   {key:"systolic",  label:"수축기 혈압", unit:"mmHg", group:"혈압",  lowerBetter:true,  color:"#ef4444"},
@@ -636,6 +641,14 @@ const HC_METRICS=[
   {key:"ggt",       label:"γ-GTP",       unit:"IU/L", group:"간기능", lowerBetter:true,  sub:"감마", color:"#a855f7"},
 ];
 function hcDef(k){ return HC_METRICS.find(m=>m.key===k); }
+/* 사용자 지정 순서(state.hcOrder) 반영한 지표 목록 */
+function orderedHcMetrics(){
+  const order=state.hcOrder||[]; const byKey={}; HC_METRICS.forEach(m=>byKey[m.key]=m);
+  const out=[]; const seen=new Set();
+  order.forEach(k=>{ if(byKey[k]&&!seen.has(k)){ out.push(byKey[k]); seen.add(k); } });
+  HC_METRICS.forEach(m=>{ if(!seen.has(m.key)) out.push(m); });
+  return out;
+}
 
 /* 값 → 등급 판정 (성별 반영). 입력 없으면 null */
 function hcEval(key, val, sex){
@@ -658,6 +671,7 @@ function hcEval(key, val, sex){
     case "waist":     return male ? (val<90?"norm": val<100?"watch":"risk")
                                   : (val<85?"norm": val<95 ?"watch":"risk");
     case "bmi":        return val<18.5?"watch": val<23?"norm": val<25?"watch":"risk";
+    case "weight":     { const b=bmiOf(val, state.profile?state.profile.height:null); return b==null?null:(b<18.5?"watch": b<23?"norm": b<25?"watch":"risk"); }
     case "creatinine": return val<=1.5?"norm": val<=2.0?"watch":"risk";
     case "egfr":       return val>=60?"norm": val>=30?"watch":"risk";
   }
@@ -680,6 +694,7 @@ function hcRefLabel(key, sex){
     case "hb":        return male ? "13–16.5" : "12–15.5";
     case "waist":     return male ? "< 90" : "< 85";
     case "bmi":        return "18.5–22.9";
+    case "weight":     { const wz=weightZone(state.profile?state.profile.height:null); return wz? Math.round(wz.lo)+"~"+Math.round(wz.hi) : "개인 목표"; }
     case "creatinine": return "≤ 1.5";
     case "egfr":       return "≥ 60";
   }
@@ -1162,7 +1177,7 @@ function mergeData(local, remote){
   for(const date in cMap){ const c=cMap[date]; if((delC[date]||0) > (c.u||0)) continue; checkups.push(c); }
   checkups.sort((x,y)=>x.date<y.date?-1:1);
 
-  return { profile, checkups, delCheckups:delC,
+  return { profile, checkups, delCheckups:delC, hcOrder:(local&&local.hcOrder)||(remote&&remote.hcOrder)||null,
     updatedAt:new Date(Math.max(new Date((local&&local.updatedAt)||0).getTime(), new Date((remote&&remote.updatedAt)||0).getTime())||Date.now()).toISOString() };
 }
 async function pullMerge(){
@@ -1743,6 +1758,7 @@ function hcThresholds(key, sex){
     case "ggt":       return male?{dir:"high",watch:63,risk:100}:{dir:"high",watch:35,risk:70};
     case "waist":     return male?{dir:"high",watch:90,risk:100}:{dir:"high",watch:85,risk:95};
     case "bmi":       return {dir:"high", watch:23, risk:25};
+    case "weight":    { const h=state.profile?state.profile.height:null; if(!h) return null; const m2=(h/100)*(h/100); return {dir:"high", watch:23*m2, risk:25*m2}; }
     case "creatinine":return {dir:"high", watch:1.5, risk:2.0};
     case "egfr":      return {dir:"low",  risk:60, good:90};
     case "hdl":       return {dir:"low",  risk:40,  good:60};
@@ -1788,7 +1804,7 @@ function renderCheckup(v){
   /* 신호등 지표 그리드 (최근 검진 + 직전 대비) */
   html+='<div class="card" data-sec="hcRecent"><h2>최근 지표 <span class="tag">'+fmtYear(lc.date)+' 기준 · 직전 대비</span></h2>';
   html+='<div class="hc-grid">';
-  HC_METRICS.forEach(m=>{
+  orderedHcMetrics().forEach(m=>{
     const val=lc[m.key]; if(val==null||isNaN(val)) return;
     const lv=hcEval(m.key, val, sex)||"norm";
     const valTxt = hcFmt(m.key, val);
@@ -1801,7 +1817,7 @@ function renderCheckup(v){
         '<div class="bw-row"><span class="bw-k bad">최저</span><span class="bw-y">'+wy+'</span><span class="bw-v tnum">'+hcFmt(m.key,bw.worst.v)+'</span></div>'+
         '</div>';
     }
-    html+='<div class="hc-item">'+
+    html+='<div class="hc-item" data-k="'+m.key+'">'+
       '<div class="hc-top"><span class="hc-name">'+hcLabelFull(m)+'</span><span class="hc-led '+LED_CLS[lv]+'"></span></div>'+
       '<div class="hc-val tnum">'+valTxt+'<small>'+m.unit+'</small></div>'+
       '<span class="hc-status '+LEVEL_CLS[lv]+'">'+LEVEL_TXT[lv]+' · 현재</span>'+
@@ -1813,7 +1829,7 @@ function renderCheckup(v){
 
   /* 지표별 추이 차트 */
   html+='<div class="card" data-sec="hcTrend"><h2>지표별 변화 추이</h2>';
-  const avail=HC_METRICS.filter(m=>hcHasAny(m.key));
+  const avail=orderedHcMetrics().filter(m=>hcHasAny(m.key));
   if(!avail.find(m=>m.key===ui.hcMetric)) ui.hcMetric = avail.length? avail[0].key : "systolic";
   html+='<div class="seg draggable" id="hcSeg">'+avail.map(m=>'<button data-hc="'+m.key+'" class="'+(ui.hcMetric===m.key?"active":"")+'">'+hcLabelFull(m)+'</button>').join("")+'</div>';
   html+='<div class="chart-wrap" id="hcWrap"></div>';
@@ -1826,7 +1842,7 @@ function renderCheckup(v){
   /* 회차별 비교 (연도별 표 · 동일 연도 세로 정렬 + 지표 선택) */
   if(cks.length>=2){
     const cyears=[...new Set(sortedCheckups().map(c=>yearOf(c.date)))].sort((a,b)=>a-b);
-    const availM=HC_METRICS.filter(m=>checkupsWith(m.key).length>0);
+    const availM=orderedHcMetrics().filter(m=>checkupsWith(m.key).length>0);
     html+='<div class="card" data-sec="hcCompare"><h2>회차별 비교 <span class="tag">연도별 · 동일 연도 정렬</span></h2>';
     html+='<div class="small muted" style="margin:-6px 0 8px">표시할 지표를 켜고 끌 수 있어요 · 표는 가로로 스크롤/드래그</div>';
     html+='<div class="cmp-toggle">'+availM.map(m=>{
@@ -1997,8 +2013,25 @@ function decorateCards(scope){
     h2.appendChild(btn);
     if(collapsed) [...card.children].forEach(ch=>{ if(ch!==h2) ch.style.display="none"; });
   });
-  scope.querySelectorAll(".hc-grid, .hc-row .vals, .cmp-scroll").forEach(enableDragScroll);
+  scope.querySelectorAll(".cmp-scroll").forEach(enableDragScroll);
   scope.querySelectorAll(".seg.draggable").forEach(enableSegDrag);
+  // 최근 지표 카드 드래그 재정렬 (마우스)
+  scope.querySelectorAll(".hc-item[data-k]").forEach(card=>{
+    card.draggable=true;
+    card.ondragstart=e=>{ hcDragKey=card.dataset.k; card.classList.add("dragging-card"); try{e.dataTransfer.effectAllowed="move"; e.dataTransfer.setData("text/plain",card.dataset.k);}catch(_){}} ;
+    card.ondragend=e=>{ card.classList.remove("dragging-card"); scope.querySelectorAll(".hc-item").forEach(c=>c.classList.remove("drag-over")); };
+    card.ondragover=e=>{ e.preventDefault(); try{e.dataTransfer.dropEffect="move";}catch(_){}; if(card.dataset.k!==hcDragKey) card.classList.add("drag-over"); };
+    card.ondragleave=e=>{ card.classList.remove("drag-over"); };
+    card.ondrop=e=>{ e.preventDefault(); card.classList.remove("drag-over"); if(hcDragKey&&card.dataset.k&&hcDragKey!==card.dataset.k) reorderHc(hcDragKey,card.dataset.k); };
+  });
+}
+let hcDragKey=null;
+function reorderHc(fromKey, toKey){
+  let order=orderedHcMetrics().map(m=>m.key);
+  order=order.filter(k=>k!==fromKey);
+  const ti=order.indexOf(toKey);
+  order.splice(ti<0?order.length:ti, 0, fromKey);
+  state.hcOrder=order; save(); renderView();
 }
 
 /* ============ 축하 효과 ============ */
